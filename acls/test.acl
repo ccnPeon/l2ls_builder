@@ -1,0 +1,2 @@
+ip access-list test
+ permit ip any any

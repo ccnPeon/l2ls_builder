@@ -1,0 +1,3 @@
+hardware_model:
+    vEOS:
+        mlag_interfaces: ['Ethernet7', 'Ethernet8']

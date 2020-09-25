@@ -1,0 +1,19 @@
+vlans:
+    10: 
+        name: vlan10
+        svi:
+            enabled: True
+            cidr: 24
+            spine1_ip: '10.10.10.2'
+            spine2_ip: '10.10.10.3'
+            vip: '10.10.10.1'
+    20:
+        name: vlan20
+        svi:
+            enabled: False
+            cidr: 24
+            spine1_ip: '10.20.20.2'
+            spine2_ip: '10.20.20.3'
+            vip: '10.20.20.1'
+            acl: test
+            acl_direction: out
