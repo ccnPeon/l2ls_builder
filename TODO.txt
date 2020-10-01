@@ -1,0 +1,5 @@
+- Make MGMT configuration per DC and apply it to top DC container
+- Create ACL configlets and apply them to all spines
+- Make VLANs configlet per DC and apply it to top DC container
+- Make Infrastucture (MLAG and uplink) configlet per device and apply it
+- Make empty standard configlet per device and apply it

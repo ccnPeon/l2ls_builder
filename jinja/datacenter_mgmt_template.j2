@@ -1,0 +1,27 @@
+vrf instance {{ env_info['mgmt']['vrf'] }}
+!
+no ip routing vrf {{ env_info['mgmt']['vrf'] }}
+!
+username cvpadmin secret 0 arista123
+!
+ip domain lookup vrf {{ env_info['mgmt']['vrf'] }} source-interface Management1
+!
+ip name-server vrf {{ env_info['mgmt']['vrf'] }} {{ env_info['mgmt']['dns_server'] }} 
+!
+ntp server vrf {{ env_info['mgmt']['vrf'] }} {{ env_info['mgmt']['ntp_server'] }}
+!
+management api http-commands
+ no shutdown
+ !
+ vrf {{ env_info['mgmt']['vrf'] }}
+  no shutdown
+!
+{% if env_info['cvp_info']['cvp_type'] == 'single' %}
+daemon TerminAttr
+  exec /usr/bin/TerminAttr -ingestgrpcurl={{ env_info['cvp_info']['cvp_server_primary_ip'] }}:9910 -taillogs -ingestauth=key,arista -smashexcludes=ale,flexCounter,hardware,kni,pulse,strata -ingestexclude=/Sysdb/cell/1/agent,/Sysdb/cell/2/agent -ingestvrf={{ env_info['mgmt']['vrf'] }}
+  no shutdown
+{% elif env_info['cvp_info']['cvp_type'] == 'cluster' %}
+ daemon TerminAttr
+  exec /usr/bin/TerminAttr -ingestgrpcurl={{ env_info['cvp_info']['cvp_server_primary_ip'] }}:9910,{{ env_info['cvp_info']['cvp_server_secondary_ip'] }}:9910,{{ env_info['cvp_info']['cvp_server_tertiary_ip'] }}:9910 -taillogs -ingestauth=key,arista -smashexcludes=ale,flexCounter,hardware,kni,pulse,strata -ingestexclude=/Sysdb/cell/1/agent,/Sysdb/cell/2/agent -ingestvrf={{ env_info['mgmt']['vrf'] }}
+  no shutdown
+{% endif %}

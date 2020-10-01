@@ -1,3 +1,0 @@
-hardware_model:
-    vEOS:
-        mlag_interfaces: ['Ethernet5', 'Ethernet6']

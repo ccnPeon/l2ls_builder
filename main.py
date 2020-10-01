@@ -20,11 +20,12 @@ def get_topology():
         topology = yaml.safe_load(topology_file.read())
         return topology
 
-
-def get_jinja_template(device_type):
-    if device_type == 'spine':
+def get_jinja_template(configlet_type):
+    if configlet_type == 'mgmt':
+        template_path = 'mgmt_template.j2'
+    elif configlet_type == 'spine':
         template_path = 'spine_template.j2'
-    elif device_type == 'leaf':
+    elif configlet_type == 'leaf':
         template_path = 'leaf_template.j2'
 
     with open('./jinja/{0}'.format(template_path), 'r') as j2:
@@ -32,8 +33,6 @@ def get_jinja_template(device_type):
         j2.close()
         return template
    
-
-
 def render_config_template(vars_dict,template):
     env = jinja2.Environment(
         loader=jinja2.BaseLoader(),
@@ -44,9 +43,6 @@ def render_config_template(vars_dict,template):
         config = templategen.render(vars_dict)
         return(config)
     return(None)
-    
-
-
 
 def main():
     env_info = get_environment_info()
@@ -59,16 +55,18 @@ def main():
     vlan_info = yaml.safe_load(open('./variables/vlans.yaml', 'r').read())
 
     # Instantiate client connection
-    # client = API(cvp_server, username, password)
+    client = API(cvp_server, username, password)
 
     # Get devices from CVP
-    # cvp_devices = client.get_devices_all()
+    cvp_devices = client.get_devices_all()
 
     #temp offline data
-    cvp_devices = yaml.safe_load(open('offline_data.yaml', 'r').read())
+    # cvp_devices = yaml.safe_load(open('offline_data.yaml', 'r').read())
 
     # Start to build one dict for build
     build_vars = {**{'env_info': env_info}, **vlan_info}
+
+    mgmt_config = render_config_template(build_vars,get_jinja_template('mgmt'))
 
     for device in cvp_devices:
         if 'leaf' in device['fqdn'].lower():
@@ -77,9 +75,10 @@ def main():
             # Append Parent Container name to the device_info variable to use
             # for the MLAG Domain ID. Use camelCase to keep data consistent with 
             # CVP's API naming conventions.
-            device_info['parentContainer'] = client.get_container_by_key(device_info['parentContainerKey'])
+            # device_info['parentContainer'] = client.get_container_by_key(device_info['parentContainerKey'])
             
             build_vars = {**build_vars, **{'device_type_info': leaf_info}, **{'device_info': device, **{'vlan_info': vlan_info}}}
+        
             config = render_config_template(build_vars,template)
             print(config)
             break

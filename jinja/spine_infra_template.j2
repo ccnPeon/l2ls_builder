@@ -1,0 +1,38 @@
+vlan {{ env_info['mlag']['vlan'] }}
+ name MLAGPEER
+ trunk group MLAGPEER
+!
+spanning-tree mode {{ env_info['spanning_tree']['mode'] }}
+no spanning-tree vlan-id {{ env_info['mlag']['vlan'] }}
+spanning-tree vlan-id 1-4000 priority {{ env_info['spanning_tree']['spine_priority'] }}
+!
+ip virtual-router mac-address {{ env_info['varp']['mac_address'] }}
+!
+interface vlan{{ env_info['mlag']['vlan'] }}
+ description MLAGPEER
+{% if device_info['name'][-1:].lower() == 'a' or device_info['name'][-1:].lower() == '1' %}
+ ip address {{ env_info['mlag']['odd_side_ip'] }}/{{ env_info['mlag']['cidr'] }}
+{% elif device_info['name'][-1:].lower() == 'b' or device_info['name'][-1:].lower() == '2' %}
+ ip address {{ env_info['mlag']['even_side_ip'] }}/{{ env_info['mlag']['cidr'] }}
+{% endif %}
+!
+interface port-channel{{ env_info['mlag']['port_channel'] }}
+ description MLAGPEER
+ switchport mode trunk
+ switchport trunk group MLAGPEER
+!
+{% for interface in device_type_info['hardware_models'][device_info['cvp_info']['modelName']]['mlag_interfaces'] %}
+interface {{ interface }}
+ description MLAGPEERLINKMEMBER
+ channel-group {{ env_info['mlag']['port_channel'] }} mode active
+!
+{% endfor %}
+mlag configuration
+ domain-id SPINES
+ local-interface vlan{{ env_info['mlag']['vlan'] }}
+ peer-link port-channel{{ env_info['mlag']['port_channel'] }}
+{% if device_info['name'][-1:].lower() == 'a' or device_info['name'][-1:].lower() == '1' %}
+ peer-address {{ env_info['mlag']['even_side_ip'] }}
+{% elif device_info['name'][-1:].lower() == 'b' or device_info['name'][-1:].lower() == '2' %}
+ peer-address {{ env_info['mlag']['odd_side_ip'] }}
+{% endif %}

@@ -1,0 +1,22 @@
+hardware_models:
+    vEOS:
+        mlag_interfaces: ['Ethernet7', 'Ethernet8']
+infra_interfaces:
+    Ethernet1:
+        description: To DCB-Leaf1a
+        mlag: 1
+    Ethernet2:
+        description: To DCB-Leaf1b
+        mlag: 1
+    Ethernet3:
+        description: To DCB-Leaf2a
+        mlag: 2
+    Ethernet4:
+        description: To DCB-Leaf2b
+        mlag: 2
+    Ethernet5:
+        description: To DCB-BLa
+        mlag: 3
+    Ethernet6:
+        description: To DCB-BLb
+        mlag: 3

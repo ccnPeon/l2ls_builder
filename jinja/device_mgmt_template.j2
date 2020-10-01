@@ -1,0 +1,7 @@
+hostname {{ device_name }}
+!
+interface Management1
+ vrf {{ env_info['mgmt']['vrf'] }}
+ ip address {{ device_ip }}/{{ env_info['mgmt']['cidr'] }}
+!
+ip route vrf {{ env_info['mgmt']['vrf'] }} 0/0 {{ env_info['mgmt']['gateway'] }}

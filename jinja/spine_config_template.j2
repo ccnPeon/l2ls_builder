@@ -1,0 +1,37 @@
+{% for vlan in vlan_info['vlans'] %}
+vlan {{ vlan }}
+ name {{ vlan_info['vlans'][vlan]['name'] }}
+{% endfor %}
+!
+{% for vlan in vlan_info['vlans'] %}
+{% if 'svi' in vlan_info['vlans'][vlan] %}
+interface vlan {{ vlan }}
+ no autostate
+ description {{ vlan_info['vlans'][vlan]['name'] }}
+{% if device_info['name'][-1:].lower() == 'a' or device_info['name'][-1:].lower() == '1' %}
+ ip address {{ vlan_info['vlans'][vlan]['svi']['spine1_ip'] }}/{{ vlan_info['vlans'][vlan]['svi']['cidr'] }}
+{% elif device_info['name'][-1:].lower() == 'b' or device_info['name'][-1:].lower() == '2' %}
+ ip address {{ vlan_info['vlans'][vlan]['svi']['spine2_ip'] }}/{{ vlan_info['vlans'][vlan]['svi']['cidr'] }}
+{% endif %}
+ ip virtual-router address {{ vlan_info['vlans'][vlan]['svi']['vip'] }}
+{% if vlan_info['vlans'][vlan]['enabled'] == False %}
+ shutdown
+{% else %}
+ no shutdown
+{% endif %}
+{% endif %}
+!
+{% endfor %}
+{% for interface in device_type_info['infra_interfaces']['port_channels'] %}
+interface Port-Channel{{ interface }}
+ description {{ device_type_info['infra_interfaces']['port_channels'][interface]['description'] }}
+ switchport mode trunk
+ mlag {{ interface }}
+!
+{% endfor %}
+{% for interface in device_type_info['infra_interfaces']['members'] %}
+interface {{ interface }}
+ description {{ device_type_info['infra_interfaces']['members'][interface]['description'] }}
+ channel-group {{ device_type_info['infra_interfaces']['members'][interface]['port_channel'] }} mode active
+!
+{% endfor %}

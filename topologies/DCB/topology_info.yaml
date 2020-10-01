@@ -1,0 +1,36 @@
+Tenant:
+    children:
+      DCB:
+        children:
+          DCB_Leafs:
+            children:
+                DCB_Leaf1:
+                    devices:
+                      DCB-Leaf1a:
+                        ip: 10.255.255.112
+                      DCB-Leaf1b:
+                        ip: 10.255.255.113
+                DCB_Leaf2:
+                    devices:
+                      DCB-Leaf2a:
+                        ip: 10.255.255.114
+                      DCB-Leaf2b:
+                        ip: 10.255.255.115
+                DCB_BL:
+                    devices:
+                      DCB-LeafBLa:
+                        ip: 10.255.255.116
+                      DCB-LeafBLb:
+                        ip: 10.255.255.117
+          DCB_Spines:
+            devices:
+              DCB-Spine1:
+                ip: 10.255.255.110
+              DCB-Spine2:
+                ip: 10.255.255.111
+          DCB_Aggs:
+            devices:
+                DCB-Agg1:
+                  ip: 10.255.255.118
+                DCB-Agg2:
+                  ip: 10.255.255.119

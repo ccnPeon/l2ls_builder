@@ -1,0 +1,36 @@
+Tenant:
+    children:
+      DCA:
+        children:
+          DCA_Leafs:
+            children:
+                DCA_Leaf1:
+                    devices:
+                      DCA-Leaf1a:
+                        ip: 10.255.255.102
+                      DCA-Leaf1b:
+                        ip: 10.255.255.103
+                DCA_Leaf2:
+                    devices:
+                      DCA-Leaf2a:
+                        ip: 10.255.255.104
+                      DCA-Leaf2b:
+                        ip: 10.255.255.105
+                DCA_BL:
+                    devices:
+                      DCA-LeafBLa:
+                        ip: 10.255.255.106
+                      DCA-LeafBLb:
+                        ip: 10.255.255.107
+          DCA_Spines:
+            devices:
+              DCA-Spine1:
+                ip: 10.255.255.100
+              DCA-Spine2:
+                ip: 10.255.255.101
+          DCA_Aggs:
+            devices:
+                DCA-Agg1:
+                  ip: 10.255.255.108
+                DCA-Agg2:
+                  ip: 10.255.255.109

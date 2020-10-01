@@ -76,18 +76,39 @@ class API():
         response = json.loads(requests.get(url=url, cookies=self.cookies, verify=False).content)['netElementList']
         return response
 
-    def get_devices_all(self):
+    def get_devices_provisioned(self):
         url = self.api_root + '/inventory/devices?provisioned=true'
         response = json.loads(requests.get(url=url, cookies=self.cookies, verify=False).content)
         return response
     
+    def get_devices_all(self):
+        url = self.api_root + '/inventory/devices'
+        response = json.loads(requests.get(url=url, cookies=self.cookies, verify=False).content)
+        return response
+
     def get_device_by_name(self,device_name):
         url = self.api_root + '/provisioning/searchTopology.do?queryParam={0}&startIndex=0&endIndex=0'.format(device_name)
-        response = json.loads(requests.get(url=url, cookies=self.cookies, verify=False).content)['netElementList'][0]
-        if response['fqdn'] == device_name:
-            return response
+        response = json.loads(requests.get(url=url, cookies=self.cookies, verify=False).content)['netElementList']
+
+        if len(response) > 1:
+            for device in response:
+                if device['fqdn'] == device_name:
+                    return device
+
+            # Catch all if device is not found        
+            return {'Error': 'Device not found.'} 
+                   
         else:
-            return {'Error': 'Device name mismatch. Multiple devices may have been found.'}
+            if response[0]['fqdn'] == device_name:
+                    return response[0]
+            else:
+                return {'Error': 'Device not found.'}
+
+    def delete_device_by_id(self,device_id):
+        url = self.api_root + '/inventory/deleteDevices.do'
+        data = {'data': [device_id]}
+        response = json.loads(requests.post(url=url, cookies=self.cookies, data=json.dumps(data), verify=False).content)
+        return response
 
     def move_devices(self,device_list):
         '''
@@ -195,6 +216,68 @@ class API():
             'toName': device_info['fqdn'],
             'nodeIpAddress': device_info['ipAddress'],
             'nodeTargetIpAddress': device_info['ipAddress'],
+            'childTasks': [],
+            'parentTask': parent_task}]})
+        
+        url = self.api_root + '/provisioning/addTempAction.do?format=topology&queryParam=&nodeId=root'
+        response = requests.post(url=url, data=payload, cookies=self.cookies, verify=False).content
+        return response
+    
+    def add_multiple_configlets_to_device(self,configlets_list,device_info,parent_task=''):
+        configlet_keys = [ configlet['key'] for configlet in configlets_list ]
+        configlet_names = [ configlet['name'] for configlet in configlets_list ]
+        payload = json.dumps({'data': [{'info': 'Add Configlets',
+            'infoPreview': 'Add Configlets',
+            'note': '',
+            'action': 'associate',
+            'nodeType': 'configlet',
+            'nodeId': '',
+            'configletList': configlet_keys,
+            'configletNamesList': configlet_names,
+            'ignoreConfigletNamesList': [],
+            'ignoreConfigletList': [],
+            'configletBuilderList': [],
+            'configletBuilderNamesList': [],
+            'ignoreConfigletBuilderList': [],
+            'ignoreConfigletBuilderNamesList': [],
+            'toId': device_info['systemMacAddress'],
+            'toIdType': 'netelement',
+            'fromId': '',
+            'nodeName': '',
+            'fromName': '',
+            'toName': device_info['fqdn'],
+            'nodeIpAddress': device_info['ipAddress'],
+            'nodeTargetIpAddress': device_info['ipAddress'],
+            'childTasks': [],
+            'parentTask': parent_task}]})
+        
+        url = self.api_root + '/provisioning/addTempAction.do?format=topology&queryParam=&nodeId=root'
+        response = requests.post(url=url, data=payload, cookies=self.cookies, verify=False).content
+        return response
+
+    def add_configlet_to_container(self,configlet_key,configlet_name,container_info,parent_task=''):
+        payload = json.dumps({'data': [{'info': 'Configlet Assign: to container {0}'.format(container_info['Name']),
+            'infoPreview': 'Configlet Assign: to container {0}'.format(container_info['Name']),
+            'note': '',
+            'action': 'associate',
+            'nodeType': 'configlet',
+            'nodeId': '',
+            'configletList': [configlet_key],
+            'configletNamesList': [configlet_name],
+            'ignoreConfigletNamesList': [],
+            'ignoreConfigletList': [],
+            'configletBuilderList': [],
+            'configletBuilderNamesList': [],
+            'ignoreConfigletBuilderList': [],
+            'ignoreConfigletBuilderNamesList': [],
+            'toId': container_info['Key'],
+            'toIdType': 'container',
+            'fromId': '',
+            'nodeName': '',
+            'fromName': '',
+            'toName': container_info['Name'],
+            'nodeIpAddress': '',
+            'nodeTargetIpAddress': '',
             'childTasks': [],
             'parentTask': parent_task}]})
         

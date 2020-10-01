@@ -1,0 +1,39 @@
+spanning_tree:
+    spine_priority: 4096
+    leaf_priority: 8192
+    mode: rapid
+mlag:
+    odd_side_ip: '192.168.255.254'
+    even_side_ip: '192.168.255.255'
+    cidr: 31
+    vlan: 4094
+    port_channel: 1000
+datacenters:
+    DCA:
+        mgmt:
+            ntp_server: pool.ntp.org
+            vrf: MGMT
+            dns_server: 10.0.0.11
+            gateway: 10.255.255.1
+            cidr: 24
+        cvp_info:
+            cvp_hostname: cvp
+            cvp_type: single
+            cvp_server_primary_ip: 10.0.0.32
+            cvp_server_secondary_ip: null
+            cvp_server_tertiary_ip: null
+    DCB:
+        mgmt:
+            ntp_server: pool.ntp.org
+            vrf: MGMT
+            dns_server: 10.0.0.11
+            gateway: 10.255.255.1
+            cidr: 24
+        cvp_info:
+            cvp_hostname: cvp
+            cvp_type: single
+            cvp_server_primary_ip: 10.0.0.32
+            cvp_server_secondary_ip: null
+            cvp_server_tertiary_ip: null
+varp:
+    mac_address: aaaa.bbbb.cccc
