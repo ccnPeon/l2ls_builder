@@ -1,2 +1,3 @@
 - Make empty standard configlet per device and apply it
 - Fix Management1 interface in datacenter_mgmt_template or make cEOS MGMT interface match everything else
+- Fix container inheritance for DC MGMT
