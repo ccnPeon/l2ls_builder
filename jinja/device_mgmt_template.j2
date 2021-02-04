@@ -1,6 +1,8 @@
+vrf instance {{ env_info['mgmt']['vrf'] }}
+!
 hostname {{ device_name }}
 !
-interface Management1
+interface {{ device_type_info['hardware_models'][device_info['cvp_info']['modelName']]['mgmt_interface'] }}
  vrf {{ env_info['mgmt']['vrf'] }}
  ip address {{ device_ip }}/{{ env_info['mgmt']['cidr'] }}
 !

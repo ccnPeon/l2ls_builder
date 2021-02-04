@@ -2,5 +2,10 @@ hardware_models:
     vEOS:
         mlag_interfaces: ['Ethernet5', 'Ethernet6']
         uplink_interfaces: ['Ethernet1', 'Ethernet2']
+        mgmt_interface: Management1
+    cEOSLab:
+        mlag_interfaces: ['Ethernet5', 'Ethernet6']
+        uplink_interfaces: ['Ethernet1', 'Ethernet2']
+        mgmt_interface: Management0
 infra_info:
     uplink_port_channel: 999

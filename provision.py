@@ -45,20 +45,18 @@ def main():
         # Gather device and vlan info
         spine_info = yaml.safe_load(open('./topologies/{0}/spine_info.yaml'.format(datacenter), 'r').read())
         leaf_info = yaml.safe_load(open('./topologies/{0}/leaf_info.yaml'.format(datacenter), 'r').read())
+        other_device_info = yaml.safe_load(open('./topologies/{0}/other_device_info.yaml'.format(datacenter), 'r').read())
         vlan_info = yaml.safe_load(open('./topologies/{0}/vlans.yaml'.format(datacenter), 'r').read())
         datacenter_container_info = client.get_container_by_name(datacenter)
 
-        # Start to build one dict for build
-        build_vars = {**{'env_info': env_info['datacenters'][datacenter]}, **vlan_info}
-
         # Build datacenter management configlet
+        build_vars = {**{'env_info': env_info['datacenters'][datacenter]}, **vlan_info}
         mgmt_config = render_config_template(build_vars,get_jinja_template('datacenter_mgmt'))
         mgmt_configlet_info = client.create_configlet(configlet_name=datacenter+'_MGMT',config=mgmt_config)
         if 'CreateConfigletError' in mgmt_configlet_info and mgmt_configlet_info['CreateConfigletError'] == 'Configlet may already exist.':
             mgmt_configlet_info = client.get_configlet_by_name(datacenter+'_MGMT')
         else:
             pass
-        client.add_configlet_to_container(mgmt_configlet_info['key'],mgmt_configlet_info['name'],datacenter_container_info)
 
         # Apply device specific configurations
         target_devices = get_target_devices(topology)
@@ -73,8 +71,12 @@ def main():
                 if cvp_device['ipAddress'] == target_values['ip']:
                     print('Creating configurations for Device: {0}'.format(target_name))
                     
-                    # Add device info to 
-                    build_vars = {**{'env_info': env_info['datacenters'][datacenter]}, **vlan_info, 'device_name': target_name, 'device_ip': target_values['ip']}
+                    if 'spine' in target_name.lower():
+                        build_vars = {**{'env_info': env_info['datacenters'][datacenter]}, **{'device_type_info': spine_info}, **{'device_info': {**{'name': target_name}, **{'cvp_info': cvp_device}}}, **vlan_info, 'device_name': target_name, 'device_ip': target_values['ip']}
+                    elif 'leaf' in target_name.lower():
+                        build_vars = {**{'env_info': env_info['datacenters'][datacenter]}, **{'device_type_info': leaf_info}, **{'device_info': {**{'name': target_name}, **{'cvp_info': cvp_device}}}, **vlan_info, 'device_name': target_name, 'device_ip': target_values['ip']}
+                    else:
+                        build_vars = {**{'env_info': env_info['datacenters'][datacenter]}, **{'device_type_info': other_device_info}, **{'device_info': {**{'name': target_name}, **{'cvp_info': cvp_device}}}, **vlan_info, 'device_name': target_name, 'device_ip': target_values['ip']}
                     device_mgmt_config = render_config_template(build_vars,get_jinja_template('device_mgmt'))
                     configlet_info = client.create_configlet(target_name+'_MGMT',device_mgmt_config)
                     if 'CreateConfigletError' in configlet_info and configlet_info['CreateConfigletError'] == 'Configlet may already exist.':
@@ -136,26 +138,11 @@ def main():
                         
                     client.add_multiple_configlets_to_device(configlets_to_apply,cvp_device)
                     
+        # Apply DC Management to Containers
+        client.add_configlet_to_container(mgmt_configlet_info['key'],mgmt_configlet_info['name'],datacenter_container_info)
 
-            # if 'leaf' in device['fqdn'].lower():
-            #     template = get_jinja_template('leaf')
-
-            #     # Append Parent Container name to the device_info variable to use
-            #     # for the MLAG Domain ID. Use camelCase to keep data consistent with 
-            #     # CVP's API naming conventions.
-            #     # device_info['parentContainer'] = client.get_container_by_key(device_info['parentContainerKey'])
-                
-            #     build_vars = {**build_vars, **{'device_type_info': leaf_info}, **{'device_info': device, **{'vlan_info': vlan_info}}}
-            
-            #     config = render_config_template(build_vars,template)
-            #     print(config)
-            #     break
-            # elif 'spine' in device['fqdn'].lower():
-            #     template = get_jinja_template('spine')
-            #     build_vars = {**build_vars, **{'device_type_info': spine_info}, **{'device_info': device}}
-            #     config = render_config_template(build_vars,template)
-            #     print(config)
-
+    # Save Topology
+    client.save_topology()
 
 if __name__ == '__main__':
     main()

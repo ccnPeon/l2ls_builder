@@ -4,7 +4,7 @@ no ip routing vrf {{ env_info['mgmt']['vrf'] }}
 !
 username cvpadmin secret 0 arista123
 !
-ip domain lookup vrf {{ env_info['mgmt']['vrf'] }} source-interface Management1
+ip domain lookup vrf {{ env_info['mgmt']['vrf'] }} source-interface Management0
 !
 ip name-server vrf {{ env_info['mgmt']['vrf'] }} {{ env_info['mgmt']['dns_server'] }} 
 !

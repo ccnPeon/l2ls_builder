@@ -65,10 +65,6 @@ class API():
         
         return response
     
-    def save_topology(self):
-        url = self.api_root + '/provisioning/v2/saveTopology.do'
-        response = json.loads(requests.post(url=url, data='[]', cookies=self.cookies, verify=False).content)
-        return response
 
     # Device Operations
     def get_devices_undefined(self):
@@ -325,4 +321,9 @@ class API():
             })
         url = self.api_root + '/configlet/updateConfiglet.do'
         response = requests.post(url=url, data=payload, cookies=self.cookies,verify=False).content
+        return response
+
+    def save_topology(self):
+        url = self.api_root + '/provisioning/v2/saveTopology.do'
+        response = json.loads(requests.post(url=url, data='[]', cookies=self.cookies, verify=False).content)
         return response

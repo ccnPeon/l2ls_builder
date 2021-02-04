@@ -1,6 +1,10 @@
 hardware_models:
     vEOS:
         mlag_interfaces: ['Ethernet7', 'Ethernet8']
+        mgmt_interface: Management1
+    cEOSLab:
+        mlag_interfaces: ['Ethernet7', 'Ethernet8']
+        mgmt_interface: Management0
 infra_interfaces:
     port_channels:
         1:

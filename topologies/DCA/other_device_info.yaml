@@ -1,0 +1,5 @@
+hardware_models:
+    vEOS:
+        mgmt_interface: Management1
+    cEOSLab:
+        mgmt_interface: Management0
